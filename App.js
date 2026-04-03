@@ -1,31 +1,138 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import Status from './components/Status'; 
+import { StyleSheet, View, Alert, Image, TouchableHighlight, BackHandler} from 'react-native';
+import Status from './components/Status';
+import MessageList from './components/MessageList';
+import { createTextMessage, createImageMessage, createLocationMessage } from './utils/MessageUtils';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      
-      {/* For the Status */}
-      <Status />
+export default class App extends React.Component {
+  // Initial state with sample messages
+  state = {
+    messages: [
+      createImageMessage('https://picsum.photos/id/1015/300/300'),
+      createTextMessage('World'),
+      createTextMessage('Hello'),
+      createLocationMessage({
+        latitude: 37.78825,
+        longitude: -122.4324,
+        uri: 'https://picsum.photos/id/1028/400/200',
+      }),
+    ],
+  };
 
-      {/* For Message List */}
-      <View style={styles.messageList}>
-        <Text>Message List</Text>
-      </View>
-
-      {/* For Toolbar */}
-      <View style={styles.toolbar}>
-        <Text>Toolbar</Text>
-      </View>
-
-      {/* For IME */}
-      <View style={styles.ime}>
-        <Text>IME (Input Method Editor)</Text>
-      </View>
-
-    </View>
+  componentWillMount() {
+  this.backHandler = BackHandler.addEventListener(
+    'hardwareBackPress',
+    () => {
+      const { fullscreenImageId } = this.state;
+      if (fullscreenImageId) {
+        this.dismissFullscreenImage();
+        return true; // prevent default back action
+      }
+      return false; // allow normal back action (exit app)
+    }
   );
+}
+
+  componentWillUnmount() {
+    if (this.backHandler) this.backHandler.remove();
+  }
+
+    // Handle message taps
+  handlePressMessage = (msg) => {
+    switch (msg.type) {
+      case 'text':
+        // Show Alert for text message deletion
+        Alert.alert(
+          'Delete Message',
+          'Do you want to delete this message?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'Delete',
+              style: 'destructive',
+              onPress: () => this.deleteMessage(msg.id),
+            },
+          ],
+          { cancelable: true }
+        );
+        break;
+
+      case 'image':
+        this.setState({ fullscreenImageId: msg.id });
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  // Delete message from state
+  deleteMessage = (id) => {
+    this.setState((prevState) => ({
+      messages: prevState.messages.filter((m) => m.id !== id),
+    }));
+  };
+
+    // Dismiss fullscreen image
+  dismissFullscreenImage = () => {
+    this.setState({ fullscreenImageId: null });
+  };
+
+  // Render fullscreen image
+  renderFullscreenImage = () => {
+    const { messages, fullscreenImageId } = this.state;
+    if (!fullscreenImageId) return null;
+
+    const image = messages.find((m) => m.id === fullscreenImageId);
+    if (!image) return null;
+
+    return (
+      <TouchableHighlight
+        style={styles.fullscreenOverlay}
+        onPress={this.dismissFullscreenImage}
+      >
+        <Image style={styles.fullscreenImage} source={{ uri: image.uri }} />
+      </TouchableHighlight>
+    );
+  };
+
+  // Render method for MessageList
+  renderMessageList() {
+    const { messages } = this.state;
+
+    return (
+      <View style={styles.content}>
+        <MessageList
+          messages={messages}
+          onPressMessage={this.handlePressMessage}
+        />
+      </View>
+    );
+  }
+
+
+  
+  render() {
+    return (
+      <View style={styles.container}>
+        {/* Status bar */}
+        <Status />
+
+        {/* Message list */}
+        {this.renderMessageList()}
+
+        {/* Toolbar */}
+        <View style={styles.toolbar} />
+
+        {/* IME */}
+        <View style={styles.ime} />
+        {this.renderFullscreenImage()} 
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -34,17 +141,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 
-  status: {
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#eee',
-  },
-
-  messageList: {
+  content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#f9f9f9',
   },
 
@@ -58,9 +156,26 @@ const styles = StyleSheet.create({
   },
 
   ime: {
-    flex: 1,
+    flex: 0.5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ccc',
+  },
+
+  fullscreenOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  fullscreenImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
