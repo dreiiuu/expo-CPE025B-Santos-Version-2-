@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Alert, Image, TouchableHighlight, BackHandler } from 'react-native';
+import { StyleSheet, View, Alert, Image, TouchableHighlight, BackHandler, KeyboardAvoidingView, Platform } from 'react-native';
 import Status from './components/Status';
 import MessageList from './components/MessageList';
 import Toolbar from "./components/Toolbar";
@@ -144,15 +144,19 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Status />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+      keyboardVerticalOffset={20}
+    >
+      <Status />
 
-        {this.renderMessageList()}
+      {this.renderMessageList()}
 
-        {this.renderToolbar()}
+      {this.renderToolbar()}
 
-        {this.renderFullscreenImage()}
-      </View>
+      {this.renderFullscreenImage()}
+    </KeyboardAvoidingView>
     );
   }
 }
@@ -165,12 +169,10 @@ const styles = StyleSheet.create({
 
   messages: {
     flex: 1,
-    justifyContent: 'center',
     backgroundColor: '#f9f9f9',
   },
 
   toolbar: {
-    flex: 1,
     backgroundColor: '#ddd',
   },
 
