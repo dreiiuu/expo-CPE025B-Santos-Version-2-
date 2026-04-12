@@ -18,11 +18,17 @@ function getNextId() {
   return messageId;
 }
 
+function getTimestamp() {
+  return Date.now();
+}
+
+
 export function createTextMessage(text) {
   return {
     type: 'text',
     id: getNextId(),
     text,
+    createdAt: getTimestamp()
   };
 }
 
@@ -31,6 +37,7 @@ export function createImageMessage(uri) {
     type: 'image',
     id: getNextId(),
     uri,
+    createdAt: getTimestamp()
   };
 }
 
@@ -39,5 +46,6 @@ export function createLocationMessage(coordinate) {
     type: 'location',
     id: getNextId(),
     coordinate,
+    createdAt: getTimestamp()
   };
 }

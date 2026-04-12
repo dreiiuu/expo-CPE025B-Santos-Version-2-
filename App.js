@@ -21,6 +21,7 @@ export default class App extends React.Component {
     ],
     fullscreenImageId: null,
     isInputFocused: false,
+    darkMode: false
   };
 
   componentDidMount() {
@@ -129,6 +130,8 @@ export default class App extends React.Component {
         onChangeFocus={this.handleFocusChange}
         onPressCamera={this.handlePressToolbarCamera}
         onPressLocation={this.handlePressToolbarLocation}
+        darkMode={this.state.darkMode}
+        toggleDarkMode={this.toggleDarkMode}
       />
      </View>
     );
@@ -142,10 +145,17 @@ export default class App extends React.Component {
         <MessageList
           messages={messages}
           onPressMessage={this.handlePressMessage}
+          darkMode={this.state.darkMode}
         />
       </View>
     );
   }
+
+  toggleDarkMode = () => {
+    this.setState((prev) => ({
+      darkMode: !prev.darkMode,
+    }));
+  };
 
   render() {
     return (

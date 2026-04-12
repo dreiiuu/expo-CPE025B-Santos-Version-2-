@@ -26,6 +26,8 @@ export default class Toolbar extends React.Component {
     onSubmit: PropTypes.func,
     onPressCamera: PropTypes.func,
     onPressLocation: PropTypes.func,
+    darkMode: PropTypes.bool,
+    toggleDarkMode: PropTypes.func,
   };
 
   static defaultProps = {
@@ -33,6 +35,7 @@ export default class Toolbar extends React.Component {
     onSubmit: () => {},
     onPressCamera: () => {},
     onPressLocation: () => {},
+      toggleDarkMode: () => {}
   };
 
   state = {
@@ -77,13 +80,23 @@ export default class Toolbar extends React.Component {
   };
 
   render() {
-    const { onPressCamera, onPressLocation } = this.props;
+    const { onPressCamera, onPressLocation, darkMode, toggleDarkMode } = this.props;
     const { text } = this.state;
 
     return (
-      <View style={styles.toolbar}>
+      <View
+        style={[
+          styles.toolbar,
+          { backgroundColor: darkMode ? '#1e1e1e' : 'white' },
+        ]}
+      >
         <ToolbarButton title={"📷"} onPress={onPressCamera} />
         <ToolbarButton title={"📍"} onPress={onPressLocation} />
+
+        <ToolbarButton
+          title={darkMode ? '☀️' : '🌙'}
+          onPress={toggleDarkMode}
+        />
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -112,7 +125,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     paddingLeft: 16,
-    backgroundColor: "white",
+    backgroundColor: 'white'
   },
   button: {
     top: -2,

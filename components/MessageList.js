@@ -11,12 +11,15 @@ export default class MessageList extends React.Component {
     messages: PropTypes.arrayOf(MessageShape).isRequired,
     onPressMessage: PropTypes.func,
     style: PropTypes.object,
+    darkMode: PropTypes.bool
   };
 
   static defaultProps = {
     onPressMessage: () => {},
     style: {},
+    darkMode: false
   };
+
 
   renderMessageItem = ({ item }) => {
     const { onPressMessage } = this.props;
@@ -33,11 +36,30 @@ export default class MessageList extends React.Component {
   };
 
   renderMessageBody = ({ type, text, uri, coordinate }) => {
+    const { darkMode } = this.props;
     switch (type) {
       case 'text':
         return (
-          <View style={styles.messageBubble}>
-            <Text style={styles.messageText}>{text}</Text>
+            <View
+              style={[
+                styles.messageBubble,
+                { backgroundColor: darkMode ? '#333' : '#007AFF' },
+              ]}
+            >
+            <Text
+              style={[
+                styles.messageText,
+                { color: darkMode ? '#eee' : 'white' }
+              ]}
+            >
+              {text}
+            </Text>
+            <Text style={styles.timeText}>
+              {new Date().toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Text>
           </View>
         );
 
@@ -59,10 +81,14 @@ export default class MessageList extends React.Component {
   };
 
   render() {
-    const { messages, style } = this.props;
+    const { messages, style, darkMode } = this.props;
     return (
       <Animated.FlatList
-        style={[styles.container, style]}
+        style={[
+          styles.container,
+          { backgroundColor: darkMode ? '#121212' : '#f9f9f9' },
+          style,
+        ]}
         data={messages}
         renderItem={this.renderMessageItem}
         keyExtractor={keyExtractor}
@@ -92,7 +118,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   messageText: {
-    color: 'white',
+    color: 'white',    
     fontSize: 16,
     lineHeight: 22,
     flexShrink: 1,
@@ -107,4 +133,10 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 12,
   },
+  timeText: {
+  fontSize: 10,
+  color: 'rgba(255,255,255,0.7)',
+  marginTop: 4,
+  textAlign: 'right',
+  }
 });
